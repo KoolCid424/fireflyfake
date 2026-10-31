@@ -8,6 +8,32 @@
 <title>School Arcade | Built exclusively for The Gregg School</title>
 
 <style>
+  /* Always-visible Panic Button */
+.panic-button {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: #dc2626;
+  color: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(0,0,0,.35);
+  cursor: pointer;
+}
+
+.panic-button:hover {
+  background: #991b1b;
+  transform: scale(1.04);
+}
 :root {
   --blue:#17477f;
   --dark:#102e52;
@@ -19,7 +45,14 @@
   --border:#dce4ed;
 }
 * {box-sizing:border-box}
-body {
+body
+  <a
+  class="panic-button"
+  href="https://gregg.fireflycloud.net/student-dashboard-1"
+  aria-label="Panic button: open Gregg Firefly student dashboard"
+>
+  🚨 PANIC
+</a> {
   margin:0;
   background:var(--bg);
   color:var(--text);
