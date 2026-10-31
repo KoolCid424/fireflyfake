@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Student Dashboard</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#444;background:#c4daf7}
+button{font:inherit}
+a{text-decoration:none;color:#078df0}
+.sidebar{
+ position:fixed;left:0;top:0;bottom:0;width:101px;
+ background:#414141;color:white;display:flex;
+ flex-direction:column;align-items:center;z-index:10;
+}
+.brand-icon{height:83px;width:100%;display:grid;place-items:center;font-size:38px;color:#bbb}
+.nav-item{
+ width:100%;height:78px;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:5px;
+ color:white;font-size:13px;cursor:default;
+}
+.nav-circle{
+ width:43px;height:43px;border-radius:50%;
+ display:grid;place-items:center;background:#092d78;font-size:24px;
+}
+.nav-item:first-of-type .nav-circle,.nav-item:nth-of-type(3) .nav-circle{background:#c4a900;color:#222}
+.sidebar-bottom{margin-top:auto;width:100%;padding-bottom:10px}
+.sidebar-bottom .nav-item{height:75px}
+.main{margin-left:101px;min-height:100vh}
+.topbar{
+ height:84px;background:#08266c;color:white;
+ display:flex;align-items:center;padding:0 24px;gap:15px;
+}
+.logo-text{font-size:14px;letter-spacing:2px}
+.logo-shield{font-size:35px;color:#e0c34b}
+.demo-tag{
+ margin-left:auto;font-size:10px;letter-spacing:1px;
+ border:1px solid #ffffff77;padding:7px 10px;border-radius:4px
+}
+.heading{
+ height:75px;background:#e9e9e9;padding:18px 24px;
+ display:flex;align-items:center;justify-content:space-between
+}
+.heading h1{font-size:29px;margin:0;font-weight:600}
+.gold-line{width:282px;height:11px;background:#c5a900;margin-top:8px}
+.more{background:white;border:1px solid #8abdf0;border-radius:4px;padding:12px;color:#078df0}
+.content{
+ padding:24px;display:grid;
+ grid-template-columns:minmax(0,2.2fr) minmax(280px,.9fr);
+ gap:30px;align-items:start
+}
+.panel{
+ background:white;box-shadow:0 2px 5px #0002;
+ margin-bottom:22px;
+}
+.tasks-panel{min-height:140px;padding:24px}
+.task-link{
+ height:66px;border:1px solid #e4bd00;
+ display:flex;align-items:center;color:#078df0;font-size:17px
+}
+.task-icon{
+ height:64px;width:38px;background:#ffed79;
+ display:grid;place-items:center;font-size:25px;color:#444;
+ margin-right:20px
+}
+.term{
+ background:white;border:1px solid #ccc;
+ border-radius:7px;box-shadow:0 2px 4px #0002;
+ height:60px;margin-bottom:26px;
+ display:flex;align-items:center;padding:0 14px;
+ gap:14px;font-size:19px;font-weight:bold;color:#666
+}
+.arrow{
+ width:27px;height:27px;background:#707070;color:white;
+ border-radius:50%;display:grid;place-items:center;font-size:22px
+}
+.blank-panel{height:102px;background:white;box-shadow:0 2px 5px #0002}
+.right-column{padding-top:0}
+.office-tile{
+ height:169px;width:260px;max-width:100%;
+ margin:0 auto 26px;background:#e44200;
+ display:flex;align-items:center;justify-content:center;
+ color:white;font-size:33px;gap:12px
+}
+.office-symbol{font-size:43px}
+.info-panel{padding:25px;min-height:273px}
+.info-panel h2{font-size:25px;margin:0 0 26px}
+.info-panel ul{padding-left:18px;line-height:2.15}
+.info-panel li{padding-left:2px}
+.lower-panel{height:100px;margin-top:22px;background:white;box-shadow:0 2px 5px #0002}
+.photo-placeholder{
+ height:180px;background:#e8edf5;margin:24px auto 0;
+ max-width:800px;display:grid;place-items:center;color:#78889d;
+ border:1px solid #b6c9e1
+}
+/* Resources menu */
+.menu-overlay{
+ position:fixed;inset:0;background:#0005;z-index:20;
+ display:none
+}
+.menu-overlay.open{display:block}
+.resource-menu{
+ position:fixed;top:0;left:101px;bottom:0;
+ width:310px;max-width:calc(100vw - 101px);
+ background:white;z-index:21;
+ transform:translateX(-120%);
+ transition:transform .25s ease;
+ box-shadow:4px 0 15px #0002;
+}
+.resource-menu.open{transform:translateX(0)}
+.menu-header{
+ height:84px;background:#08266c;color:white;
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 22px;font-size:20px;font-weight:bold
+}
+.close-menu{
+ background:none;border:0;color:white;font-size:27px;
+ cursor:pointer
+}
+.menu-option{
+ padding:21px 23px;display:flex;align-items:center;
+ gap:15px;border-bottom:1px solid #eee;
+ color:#078df0;cursor:pointer;font-size:17px
+}
+.menu-option:hover{background:#f1f7ff}
+.game-icon{
+ width:36px;height:36px;border-radius:7px;
+ background:#08266c;color:white;display:grid;place-items:center;
+ font-size:20px
+}
+@media(max-width:850px){
+ .content{grid-template-columns:1fr}
+ .right-column{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+ .office-tile{width:100%;margin:0}
+ .info-panel{min-height:0}
+}
+@media(max-width:550px){
+ .sidebar{width:67px}
+ .main{margin-left:67px}
+ .nav-item{font-size:10px}
+ .nav-circle{width:36px;height:36px;font-size:20px}
+ .brand-icon{height:70px}
+ .resource-menu{left:67px;max-width:calc(100vw - 67px)}
+ .heading h1{font-size:21px}
+ .content{padding:13px}
+ .right-column{grid-template-columns:1fr}
+ .logo-text{font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+ <div class="brand-icon">◉</div>
+
+ <div class="nav-item">
+  <div class="nav-circle">▦</div>
+  Dashboard
+ </div>
+
+ <div class="nav-item" id="resourcesButton">
+  <div class="nav-circle">◎</div>
+  Resources
+ </div>
+
+ <div class="nav-item">
+  <div class="nav-circle">▣</div>
+  Planner
+ </div>
+
+ <div class="nav-item">
+  <div class="nav-circle">☑</div>
+  Tasks
+ </div>
+
+ <div class="nav-item">
+  <div class="nav-circle">✉</div>
+  Messages
+ </div>
+
+ <div class="sidebar-bottom">
+  <div class="nav-item">
+   <div class="nav-circle" style="background:transparent">⌕</div>
+   Search
+  </div>
+  <div class="nav-item">
+   <div class="nav-circle" style="background:#777">👤</div>
+   Profile
+  </div>
+ </div>
+</aside>
+
+<main class="main">
+
+ <header class="topbar">
+  <span style="font-size:30px">◉</span>
+  <span class="logo-text">STUDENT PORTAL</span>
+  <span class="logo-shield">★</span>
+  </header>
+
+ <section class="heading">
+  <div>
+   <h1>Student Dashboard</h1>
+   <div class="gold-line"></div>
+  </div>
+  <button class="more" type="button">More ⋯</button>
+ </section>
+
+ <section class="content">
+
+  <div>
+   <div class="panel tasks-panel">
+    <div class="task-link">
+     <span class="task-icon">☆</span>
+     Student Ambassador Tasks
+    </div>
+   </div>
+
+   <div class="term"><span class="arrow">›</span>AUTUMN TERM 2026</div>
+   <div class="term"><span class="arrow">›</span>SPRING TERM 2027</div>
+   <div class="term"><span class="arrow">›</span>SUMMER TERM 2027</div>
+
+   <div class="blank-panel"></div>
+
+   <div class="photo-placeholder">
+    Student portal demonstration image area
+   </div>
+  </div>
+
+  <div class="right-column">
+
+   <div class="office-tile">
+    <span class="office-symbol">◧</span>
+    Office 365
+   </div>
+
+   <div class="panel info-panel">
+    <h2>IT in School</h2>
+    <ul>
+     <li><a>Changing your school password at home</a></li>
+     <li><a>What to do if your WiFi won't connect</a></li>
+     <li><a>Student Acceptable Use Policy</a></li>
+     <li><a>Monitoring and Filtering</a></li>
+    </ul>
+   </div>
+
+   <div class="panel" style="height:160px;display:grid;place-items:center;font-size:65px;color:#29236e">
+    Ⓡ
+   </div>
+
+  </div>
+ </section>
+</main>
+
+<!-- Resources sidebar menu -->
+
+<div class="menu-overlay" id="overlay"></div>
+
+<aside class="resource-menu" id="resourceMenu">
+ <div class="menu-header">
+  Resources
+  <button class="close-menu" id="closeMenu">×</button>
+ </div>
+
+ <a class="menu-option"
+    href="https://gregg.fireflycloud.org/games">
+  <span class="game-icon">🎮</span>
+  Games
+ </a>
+</aside>
+
+<script>
+const menu = document.getElementById("resourceMenu");
+const overlay = document.getElementById("overlay");
+
+function openResources(){
+ menu.classList.add("open");
+ overlay.classList.add("open");
+}
+
+function closeResources(){
+ menu.classList.remove("open");
+ overlay.classList.remove("open");
+}
+
+document.getElementById("resourcesButton")
+ .addEventListener("click",openResources);
+
+document.getElementById("closeMenu")
+ .addEventListener("click",closeResources);
+
+overlay.addEventListener("click",closeResources);
+</script>
+
+</body>
+</html>
