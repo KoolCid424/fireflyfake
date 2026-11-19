@@ -10,11 +10,10 @@
 <style>
   /* Always-visible Panic Button */
 .panic-button {
-  position: fixed;
-  top: 14px;
-  right: 14px;
-  z-index: 999999;
+  position: relative;
+  z-index: 2;
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 8px;
   padding: 12px 18px;
@@ -45,14 +44,7 @@
   --border:#dce4ed;
 }
 * {box-sizing:border-box}
-body
-  <a
-  class="panic-button"
-  href="https://gregg.fireflycloud.net/student-dashboard-1"
-  aria-label="Panic button: open Gregg Firefly student dashboard"
->
-  🚨 PANIC
-</a> {
+body {
   margin:0;
   background:var(--bg);
   color:var(--text);
@@ -170,6 +162,20 @@ main {max-width:1300px;margin:auto;padding:24px 20px}
 .game:nth-child(4n+3) .art {background:linear-gradient(135deg,#dcefe0,#bce0c5)}
 .game:nth-child(4n+4) .art {background:linear-gradient(135deg,#eee0fa,#d8c4f1)}
 .game-info {padding:12px}
+.new-badge {
+  position:absolute;
+  top:9px;
+  left:9px;
+  z-index:1;
+  padding:6px 9px;
+  border-radius:5px;
+  background:#16a34a;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.7px;
+  box-shadow:0 2px 8px rgba(0,0,0,.18);
+}
 .game-info h3 {font-size:15px;margin:0 0 5px}
 .game-info small {color:var(--muted)}
 .tag {
@@ -270,6 +276,16 @@ footer .school-footer {font-weight:bold;color:#dce9f8}
   text-align:center;
   padding:15px;
 }
+
+#built iframe {
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:0;
+  flex:1;
+  border:0;
+  background:#fff;
+}
 .stage {max-width:650px;width:100%}
 .stage canvas {
   max-width:100%;
@@ -310,6 +326,7 @@ footer .school-footer {font-weight:bold;color:#dce9f8}
   .art {height:100px}
   .hero {padding:22px}
   .playerbar {flex-wrap:wrap}
+  .panic-button {padding:9px 12px;font-size:11px}
 }
 </style>
 </head>
@@ -319,6 +336,7 @@ footer .school-footer {font-weight:bold;color:#dce9f8}
 <header>
   <div class="logo">SCHOOL<span> ARCADE</span></div>
   <div class="school-tag">BUILT EXCLUSIVELY FOR THE GREGG SCHOOL</div>
+  <a class="panic-button" href="https://gregg.fireflycloud.net/student-dashboard-1" aria-label="Panic button: open Gregg Firefly student dashboard">🚨 PANIC</a>
 </header>
 
 <nav>
@@ -396,6 +414,7 @@ footer .school-footer {font-weight:bold;color:#dce9f8}
 /* GAME LIBRARY: 50 GAMES */
 
 const games = [
+  ["slope","Slope","Action","🔴","iframe:https://gregg.fireflycloud.org/super-hard-algebra/maths-revision-year-11"],
   ["snake","Snake","Classic","🐍","builtin"],
   ["2048","2048","Puzzle","🔢","builtin"],
   ["pong","Pong","Arcade","🏓","builtin"],
@@ -405,7 +424,6 @@ const games = [
   ["clicker","Cookie Clicker","Arcade","🍪","builtin"],
   ["guess","Number Guess","Classic","🎯","builtin"],
 
-  ["slope","Slope","Action","🔴","https://gregg.fireflycloud.org/super-hard-algebra/maths-revision-year-11"],
   ["run3","Run 3","Action","🏃","https://www.coolmathgames.com/0-run-3"],
   ["geometry","Geometry Dash","Action","🟩","https://www.coolmathgames.com/0-geometry-dash"],
   ["ovo","OvO","Action","⚪","https://www.coolmathgames.com/0-ovo"],
@@ -452,8 +470,8 @@ const games = [
   name:g[1],
   cat:g[2],
   emoji:g[3],
-  type:g[4]==="builtin"?"builtin":"external",
-  url:g[4]==="builtin"?"":g[4]
+  type:g[4]==="builtin"?"builtin":g[4].startsWith("iframe:")?"iframe":"external",
+  url:g[4]==="builtin"?"":g[4].startsWith("iframe:")?g[4].slice(7):g[4]
 }));
 
 /* STATE */
@@ -543,6 +561,13 @@ function makeCard(g) {
   art.className="art";
   art.textContent=g.emoji;
 
+  if(g.id==="slope") {
+    const newBadge=document.createElement("span");
+    newBadge.className="new-badge";
+    newBadge.textContent="✦ NEW";
+    card.append(newBadge);
+  }
+
   const info=document.createElement("div");
   info.className="game-info";
 
@@ -554,7 +579,7 @@ function makeCard(g) {
 
   const tag=document.createElement("div");
   tag.className="tag";
-  tag.textContent=g.type==="builtin"?"PLAY NOW":"OPEN GAME";
+  tag.textContent=g.type==="builtin"?"PLAY NOW":g.type==="iframe"?"PLAY HERE":"OPEN GAME";
 
   info.append(title,cat,tag);
   card.append(art,info);
@@ -635,7 +660,7 @@ function renderFeatured() {
     title.textContent=g.name;
 
     const sub=document.createElement("small");
-    sub.textContent=g.cat+" · "+(g.type==="builtin"?"Built-in game":"External game");
+    sub.textContent=g.cat+" · "+(g.type==="builtin"?"Built-in game":g.type==="iframe"?"Embedded game":"External game");
 
     details.append(title,sub);
     card.append(icon,details);
@@ -685,6 +710,23 @@ function openGame(g) {
   recent=[g.id,...recent.filter(x=>x!==g.id)].slice(0,12);
   saveState();
 
+  if(g.type==="iframe") {
+    cleanupGame();
+    $("player").style.display="flex";
+    $("playerTitle").textContent=g.name;
+    $("built").style.display="flex";
+    $("built").style.padding="0";
+    const iframe=document.createElement("iframe");
+    iframe.src=g.url;
+    iframe.title=g.name;
+    iframe.allow="fullscreen; autoplay; gamepad";
+    iframe.allowFullscreen=true;
+    iframe.referrerPolicy="strict-origin-when-cross-origin";
+    $("built").append(iframe);
+    gameCleanups.push(()=>{iframe.src="about:blank";});
+    return;
+  }
+
   if(g.type==="external") {
     const opened=window.open(g.url,"_blank","noopener,noreferrer");
     if(!opened) {
@@ -700,6 +742,7 @@ function openGame(g) {
   $("player").style.display="flex";
   $("playerTitle").textContent=g.name;
   $("built").style.display="flex";
+  $("built").style.padding="15px";
 
   startGame(g.id,$("built"));
 }
@@ -709,6 +752,7 @@ function closeGame() {
 
   $("player").style.display="none";
   $("built").style.display="none";
+  $("built").style.padding="15px";
 
   if(document.fullscreenElement) {
     document.exitFullscreen().catch(()=>{});
